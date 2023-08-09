@@ -20,6 +20,19 @@ HIDDEN = basic_surf(30, (144, 144, 144))
 NEIGBOUR_INDICES = [x for x in product((-1, 0, 1), (-1, 0, 1))]
 NEIGBOUR_INDICES.remove((0, 0))
 
+# Todo: free connected empy fields when clicked
+# todo: display Neigbour Mines number
+# todo: display num Mines
+# todo: add restart button
+# todo: function to mark mines
+# todo: display number of marked mines
+# todo: check if game is won
+# todo: Game Over if mine is clicked
+# todo: display GAME WON
+# todo: display GAME OVER
+
+
+
 class Field:
     def __init__(self, rect: pygame.rect.Rect, value: int = 0):
         self.value = value
