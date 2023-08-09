@@ -1,6 +1,8 @@
 import pygame
 import sys
 import numpy as np
+from itertools import product
+
 
 def basic_surf(size, color):
     if isinstance(size, int):
@@ -15,6 +17,8 @@ NUMBER = basic_surf(30, (100, 100, 200))
 EMPTY_FIELD = basic_surf(30, (180, 180, 180))
 HIDDEN = basic_surf(30, (144, 144, 144))
 
+NEIGBOUR_INDICES = [x for x in product((-1, 0, 1), (-1, 0, 1))]
+NEIGBOUR_INDICES.remove((0, 0))
 
 class Field:
     def __init__(self, rect: pygame.rect.Rect, value: int = 0):
@@ -41,7 +45,7 @@ class Field:
 
 
 class Board:
-    def __init__(self, shape: [int, int] = (15, 15), num_mines: int = 25, pos=(0,0)):
+    def __init__(self, shape: [int, int] = (15, 15), num_mines: int = 35, pos=(0,0)):
         self.num_mines = num_mines
         self.shape = shape
         self.padding = 3
@@ -52,7 +56,14 @@ class Board:
         self.image = pygame.surface.Surface(size=self.image_size)
         self.b = self.setup()
         self.place_mines()
+        self.count_mine_neighbours()
         self.has_changed = True
+
+    def is_mine(self, x: int, y: int) -> bool:
+        if x < 0 or x >= self.shape[0] or y < 0 or y >= self.shape[1]:
+            return False
+        else:
+            return self.b[x][y].is_mine
 
     def setup(self):
         b = []
@@ -64,6 +75,15 @@ class Board:
                     self.filed_size, self.filed_size)))
             b.append(row)
         return b
+
+    def count_mine_neighbours(self):
+        for i in range(self.shape[0]):
+            for j in range(self.shape[1]):
+                count = 0
+                for n, m in NEIGBOUR_INDICES:
+                    if self.is_mine(i+n, j+m):
+                        count += 1
+                self.b[i][j].value = count
 
     def place_mines(self):
         g = np.random.default_rng(seed=None)
