@@ -1,8 +1,6 @@
 import pygame
 import sys
 import numpy as np
-from itertools import product
-
 
 def basic_surf(size, color):
     if isinstance(size, int):
@@ -11,7 +9,15 @@ def basic_surf(size, color):
     surf.fill(color)
     return surf
 
-g_size = 20
+
+
+g_size = 30
+
+def number_field(n, font):
+    surf = pygame.surface.Surface((g_size, g_size))
+    surf.fill((180, 180, 180))
+    surf.blit(font.render(" " + str(n), True, (0, 0, 0)), pygame.rect.Rect(0,0,0,0))
+    return surf
 
 
 MINE = basic_surf(g_size, (255, 0, 0))
@@ -60,13 +66,13 @@ class Field:
         elif self.is_mine:
             display.blit(MINE, pos)
         elif self.value > 0:
-            display.blit(NUMBER, pos)
+            display.blit(NUMBERS[self.value], pos)
         else:
             display.blit(EMPTY_FIELD, pos)
 
 
 class Board:
-    def __init__(self, shape: [int, int] = (15, 15), num_mines: int = 35, pos=(0, 0), field_size=30):
+    def __init__(self, shape: [int, int] = (15, 15), num_mines: int = 70, pos=(0, 0), field_size=30):
         self.num_mines = num_mines
         self.shape = shape
         self.padding = 3
@@ -166,12 +172,16 @@ class Board:
 if __name__ == "__main__":
     print("running python Minesweeper")
     pygame.init()
+    pygame.font.init()
     w, h = 940, 940
     screen = pygame.display.set_mode((w, h))
     clock = pygame.time.Clock()
+    font = pygame.font.Font( size=30)
+    NUMBERS = [number_field(x, font) for x in range(9)]
+
     selection_active = False
 
-    board = Board(shape=(30, 30), field_size=g_size)
+    board = Board(shape=(20, 20), field_size=g_size)
     print("drawing Board")
     board_pos = ((w - board.image_size[0])/2, 150)
     board.draw(screen)
