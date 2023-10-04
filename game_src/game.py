@@ -13,10 +13,20 @@ def basic_surf(size, color):
 
 g_size = 30
 
+
+NUMBER_COLORS = ["blue",
+                 "springgreen4",
+                 "red",
+                 "blue4",
+                 "brown",
+                 "cyan",
+                 "black",
+                 "grey"]
+
 def number_field(n, font):
-    surf = pygame.surface.Surface((g_size, g_size))
-    surf.fill((180, 180, 180))
-    surf.blit(font.render(" " + str(n), True, (0, 0, 0)), pygame.rect.Rect(0,0,0,0))
+    surf = basic_surf(g_size, (180, 180, 180))
+    color = NUMBER_COLORS[n-1] if len(NUMBER_COLORS) > n else NUMBER_COLORS[-1]
+    surf.blit(font.render(" " + str(n), True, color), pygame.rect.Rect(0, 0, 0, 0))
     return surf
 
 
@@ -72,7 +82,7 @@ class Field:
 
 
 class Board:
-    def __init__(self, shape: [int, int] = (15, 15), num_mines: int = 70, pos=(0, 0), field_size=30):
+    def __init__(self, shape: [int, int] = (15, 15), num_mines: int = 40, pos=(0, 0), field_size=30):
         self.num_mines = num_mines
         self.shape = shape
         self.padding = 3
@@ -104,7 +114,7 @@ class Board:
             row = []
             for j in range(self.shape[1]):
                 row.append(Field(pygame.rect.Rect(
-                    (self.filed_size + self.padding) * i, (self.filed_size + self.padding) * j,
+                    self.rect.x + (self.filed_size + self.padding) * i, self.rect.y + (self.filed_size + self.padding) * j,
                     self.filed_size, self.filed_size)))
             b.append(row)
         return b
@@ -165,8 +175,12 @@ class Board:
                     if self.shape[0] > x >= 0 and self.shape[1] > y >= 0 and self.b[x][y].hidden:
                         self.discover(x, y, disc=False)
 
-
-
+    def debug_discover_all(self):
+        print("discovering all")
+        for m in self.b:
+            for x in m:
+                x.on_click()
+        self.changed = True
 
 
 if __name__ == "__main__":
@@ -176,12 +190,13 @@ if __name__ == "__main__":
     w, h = 940, 940
     screen = pygame.display.set_mode((w, h))
     clock = pygame.time.Clock()
-    font = pygame.font.Font( size=30)
+    font = pygame.font.Font(size=40)
     NUMBERS = [number_field(x, font) for x in range(9)]
 
     selection_active = False
 
-    board = Board(shape=(20, 20), field_size=g_size)
+    board = Board(shape=(16, 16), field_size=g_size, pos=(50, 50))
+
     print("drawing Board")
     board_pos = ((w - board.image_size[0])/2, 150)
     board.draw(screen)
@@ -197,9 +212,13 @@ if __name__ == "__main__":
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
+                print(event)
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
+                if event.key == pygame.K_1:
+                    print(event.key)
+                    board.debug_discover_all()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == pygame.BUTTON_LEFT:
                     x, y = pygame.mouse.get_pos()
